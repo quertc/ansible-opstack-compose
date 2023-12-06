@@ -1,0 +1,38 @@
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Clone opstack-compose
+      ansible.builtin.git:
+        repo: 'https://github.com/upnodedev/opstack-compose'
+        dest: opstack-compose
+        version: dev
+
+    - name: Copy .env file to cloned repository
+      copy:
+        src: .env
+        dest: opstack-compose/.env
+
+    - name: Run Docker Compose
+      ansible.builtin.shell:
+        cmd: docker-compose up -d
+        chdir: opstack-compose
