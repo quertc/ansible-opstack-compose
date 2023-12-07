@@ -26,11 +26,24 @@
         repo: 'https://github.com/upnodedev/opstack-compose'
         dest: opstack-compose
         version: dev
+        # force: true
 
     - name: Copy .env file to cloned repository
       copy:
         src: .env
         dest: opstack-compose/.env
+
+    - name: Check for deploy-config.json on host
+      ansible.builtin.stat:
+        path: deploy-config.json
+      register: deploy_config_stat
+
+    - name: Copy deploy-config.json file to cloned repository
+      copy:
+        src: deploy-config.json
+        dest: opstack-compose/deploy-config.json
+        force: yes
+      when: deploy_config_stat.stat.exists
 
     - name: Run Docker Compose
       ansible.builtin.shell:
